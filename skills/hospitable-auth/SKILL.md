@@ -1,6 +1,7 @@
 ---
 name: hospitable-auth
-description: Authenticate and follow conventions for the Hospitable Public API v2. Use for any Hospitable API call: PAT/OAuth headers, pagination, response envelopes, includes, rate limits, idempotency.
+description: "Authenticate and follow conventions for the Hospitable Public API v2. Use for any Hospitable API call: PAT/OAuth headers, pagination, response envelopes, includes, rate limits, idempotency."
+license: MIT
 ---
 
 # Hospitable Auth & Conventions
