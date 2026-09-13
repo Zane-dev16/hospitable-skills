@@ -1,6 +1,7 @@
 ---
 name: hospitable-properties
 description: Work with Hospitable properties and listings. Use when listing, getting, searching, tagging, imaging, quoting, or managing iCal imports for properties.
+license: MIT
 ---
 
 # Hospitable Properties

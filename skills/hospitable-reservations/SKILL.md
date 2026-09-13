@@ -1,6 +1,7 @@
 ---
 name: hospitable-reservations
 description: Work with Hospitable reservations and guests. Use when listing, getting, creating, updating, cancelling, or enriching reservations.
+license: MIT
 ---
 
 # Hospitable Reservations

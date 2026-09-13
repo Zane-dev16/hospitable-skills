@@ -1,6 +1,7 @@
 ---
 name: hospitable-calendar
 description: Read and update Hospitable property calendars. Use when checking availability, rates, restrictions, blocking or unblocking dates, or changing pricing.
+license: MIT
 ---
 
 # Hospitable Calendar
