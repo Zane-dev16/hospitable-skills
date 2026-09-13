@@ -7,7 +7,8 @@ Agent skills for the Hospitable Public API v2 (Core-3: Properties, Calendar, Res
 **Claude Code (managed plugin):**
 
 ```bash
-/plugin install hospitable-skills
+/plugin marketplace add Zane-dev16/hospitable-skills
+/plugin install hospitable-skills@zane-dev16
 ```
 
 **Codex / other agents (editable files):**
