@@ -20,7 +20,7 @@ curl -X POST -H "$H" -H 'Content-Type: application/json' -H "Idempotency-Key: $(
 curl -X PUT -H "$H" -H 'Content-Type: application/json' -d '{...}' "$BASE/reservations/{uuid}"  # update (PUT first; PATCH fallback TBC)
 curl -X POST -H "$H" -H 'Content-Type: application/json' -d '{"initiatedBy":"host"}' "$BASE/reservations/{uuid}/cancel"  # manual/direct only
 
-# Enrichment K/V — correct path is /enrichment (not /enrichment-data); value:null clears
+# Enrichment K/V: correct path is /enrichment (not /enrichment-data); value:null clears
 curl -H "$H" "$BASE/reservations/{uuid}/enrichment"
 curl -X PUT -H "$H" -H 'Content-Type: application/json' -d '{"smartlock_code":"1234"}' "$BASE/reservations/{uuid}/enrichment"
 ```
@@ -31,7 +31,7 @@ List filters: `properties[]` (required), `date_query`, `booked_at`, `last_messag
 
 - Always send fresh `Idempotency-Key` per logical create; retry with same key.
 - Update: full for manual, partial (notes, checkin/out time) for OTA.
-- Cancel is manual/Direct-only — guard before calling.
-- Reservation messages (`GET|POST /v2/reservations/{id}/messages`) belong to messaging (out of v1 scope) — noted here only to avoid confusion.
+- Cancel is manual/Direct-only, so guard before calling.
+- Reservation messages (`GET|POST /v2/reservations/{id}/messages`) belong to messaging (out of v1 scope) and are noted here only to avoid confusion.
 
 Full detail: `docs/discovery/02-endpoint-inventory.md`, `04-reservations-guests-reviews.md`.

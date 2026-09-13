@@ -20,7 +20,7 @@ npx skills@latest add Zane-dev16/hospitable-skills
 
 | Skill | Use when |
 | --- | --- |
-| `hospitable-auth` | Any Hospitable API call — auth, headers, pagination, envelope, rate limits |
+| `hospitable-auth` | Any Hospitable API call: auth, headers, pagination, envelope, rate limits |
 | `hospitable-properties` | List, get, search properties; tags; images; quotes; iCal imports |
 | `hospitable-calendar` | Read/update calendars; block/unblock ranges |
 | `hospitable-reservations` | List/get/create/update/cancel reservations; enrichment K/V |
@@ -39,4 +39,4 @@ Details: [`skills/hospitable-auth/SKILL.md`](skills/hospitable-auth/SKILL.md). D
 
 - **verified** = fetched live this repo's discovery phase
 - **triangulated** = confirmed via community mirrors (kacao/keithah/silkyland), needs live probe
-- **TBC** = URL from docs nav, body not fetched — do not rely on it
+- **TBC** = URL from docs nav, body not fetched, so do not rely on it

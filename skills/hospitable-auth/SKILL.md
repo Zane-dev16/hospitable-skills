@@ -1,6 +1,6 @@
 ---
 name: hospitable-auth
-description: Authenticate and follow conventions for the Hospitable Public API v2. Use for any Hospitable API call — PAT/OAuth headers, pagination, response envelopes, includes, rate limits, idempotency.
+description: Authenticate and follow conventions for the Hospitable Public API v2. Use for any Hospitable API call: PAT/OAuth headers, pagination, response envelopes, includes, rate limits, idempotency.
 ---
 
 # Hospitable Auth & Conventions
@@ -22,17 +22,17 @@ curl -H "Authorization: Bearer $HOSPITABLE_PAT" -H "Accept: application/json" \
 ## Wire
 
 - Headers: `Authorization: Bearer <token>`, `Accept: application/json`, `Content-Type: application/json` on writes.
-- Envelopes: list `{data:[], meta:{...}, links:{next}}`, single `{data:{...}}`, calendar `{data:{days:[...]}}` or `{data:[...]}` — unwrap both.
+- Envelopes: list `{data:[], meta:{...}, links:{next}}`, single `{data:{...}}`, calendar `{data:{days:[...]}}` or `{data:[...]}`; unwrap both.
 - Pagination: `?page=&per_page=` (default 10, max 100). Use `per_page=100` + follow `links.next`.
-- Includes: `?include=` comma-joined; unknown values silently ignored — allowlist only. Properties: `user,listings,details,bookings,ical_imports`. Reservations: `guest,user,financials,financialsV2,listings,properties,review,smartlock_code,tasks,conversation,checkins,transactions`.
+- Includes: `?include=` comma-joined; unknown values silently ignored, so stick to the allowlist. Properties: `user,listings,details,bookings,ical_imports`. Reservations: `guest,user,financials,financialsV2,listings,properties,review,smartlock_code,tasks,conversation,checkins,transactions`.
 - Money: minor units (cents), ISO-4217 currency.
-- Idempotency: `POST /v2/reservations` requires `Idempotency-Key: <uuid>` — fresh uuid per logical create.
+- Idempotency: `POST /v2/reservations` requires `Idempotency-Key: <uuid>`; use a fresh uuid per logical create.
 
 ## Limits & errors (triangulated)
 
 - Calendar read ~1000 req/min; calendar write 60 dates/call; messaging 2/min per convo, 50/5min global.
 - 429: honor `X-RateLimit-Reset`, backoff + retry.
-- `calendar_restricted` channel → PUT returns 422 — pre-check and surface friendly error.
-- Calendar PUT is async (200/202 accepted ≠ visible) — poll GET.
+- `calendar_restricted` channel → PUT returns 422, so pre-check and surface a friendly error.
+- Calendar PUT is async (200/202 accepted ≠ visible), so poll GET.
 
 Full detail: `docs/discovery/01-auth-and-conventions.md`.

@@ -9,11 +9,11 @@ source: grilling 2026-09-13 + docs/discovery/00-07
 
 ## Problem Statement
 
-As a host/operator who works through AI agents, I want to automate Hospitable work (check what I own, check availability and price, manage bookings) without hand-reading Stoplight docs every time, so that routine operations become repeatable agent tasks instead of bespoke API spelunking. Today the Public API v2 docs are JS-rendered and fragmented across guides, the endpoint surface is wide (~34 triangulated ops plus TBC domains), and auth, pagination, envelope, and rate-limit quirks are only documented by triangulation — so every agent session re-discovers the same ground truth.
+As a host/operator who works through AI agents, I want to automate Hospitable work (check what I own, check availability and price, manage bookings) without hand-reading Stoplight docs every time, so that routine operations become repeatable agent tasks instead of bespoke API spelunking. Today the Public API v2 docs are JS-rendered and fragmented across guides, the endpoint surface is wide (~34 triangulated ops plus TBC domains), and auth, pagination, envelope, and rate-limit quirks are only documented by triangulation, so every agent session re-discovers the same ground truth.
 
 ## Solution
 
-A public, mattpocock-structured skills library that gives AI agents three small, composable skills covering the Core-3 domains (Properties, Calendar, Reservations), sharing one auth convention (Bearer PAT from environment) and verified against a live test Property with read-only smokes. Agents load only the skill they need, copy a minimal request pattern, and get correct behavior on pagination, envelopes, includes, idempotency, and throttles without re-learning quirks.
+A public skills library with one skill per domain that gives AI agents three small, composable skills covering the Core-3 domains (Properties, Calendar, Reservations), sharing one auth convention (Bearer PAT from environment) and verified against a live test Property with read-only smokes. Agents load only the skill they need, copy a minimal request pattern, and get correct behavior on pagination, envelopes, includes, idempotency, and throttles without re-learning quirks.
 
 ## User Stories
 

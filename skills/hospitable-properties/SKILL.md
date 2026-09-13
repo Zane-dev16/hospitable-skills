@@ -18,7 +18,7 @@ H='Authorization: Bearer '"$HOSPITABLE_PAT"
 curl -H "$H" "$BASE/properties?per_page=100"            # list (auto-paginate links.next)
 curl -H "$H" "$BASE/properties/{uuid}"                 # get one
 curl -H "$H" "$BASE/properties/search?check_in=2026-10-01&check_out=2026-10-05"  # availability+pricing (<=90d window, <=3y out; surfaces notAvailableReason)
-curl -H "$H" "$BASE/properties/{uuid}/images"          # ordered images — short-lived S3 URLs, never cache
+curl -H "$H" "$BASE/properties/{uuid}/images"          # ordered images: short-lived S3 URLs, never cache
 curl -H "$H" "$BASE/properties/{uuid}/tags"            # list org tags
 curl -X POST -H "$H" -H 'Content-Type: application/json' -d '{"tags":["cabin"]}' "$BASE/properties/{uuid}/tags"  # add 1-10 per call
 curl -X POST -H "$H" -H 'Content-Type: application/json' -d '{...}' "$BASE/properties/{uuid}/quote"  # Direct-gated quote
@@ -36,7 +36,7 @@ Also triangulated: `GET /v2/listings`, `GET /v2/channels` (booking-platform chan
 ## Gotchas
 
 - Search requires explicit dates; surface `notAvailableReason` instead of calling unavailable "bookable".
-- Images: pre-signed ~1h URLs — fetch fresh every run.
+- Images: pre-signed ~1h URLs, so fetch fresh every run.
 - Quote only works for Hospitable Direct properties.
 
 Full detail: `docs/discovery/02-endpoint-inventory.md`, `03-listings-calendar.md`.
