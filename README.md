@@ -1,38 +1,43 @@
-# Hospitable Skills
+# Hospitable skill
 
-Agent skills for the Hospitable Public API v2 (Core-3: Properties, Calendar, Reservations).
+One agent skill for the Hospitable Public API v2: properties, calendar, reservations.
 
-## Install
+## Setup
 
-**Claude Code (managed plugin):**
+**1. Install the skill.**
+
+Claude Code:
 
 ```bash
 /plugin marketplace add Zane-dev16/hospitable-skills
 /plugin install hospitable-skills@zane-dev16
 ```
 
-**Codex / other agents (editable files):**
+Codex / other agents:
 
 ```bash
 npx skills@latest add Zane-dev16/hospitable-skills
 ```
 
-## Skills
+**2. Add your token.**
 
-One skill: [`hospitable`](skills/hospitable/SKILL.md) — auth, properties, calendar, reservations. Load it for any Hospitable work.
-
-## Auth
+Mint it in Hospitable: Apps → API access → new personal access token. Export it; never commit it:
 
 ```bash
-export HOSPITABLE_PAT="<pat from my.hospitable.com → Apps → API access>"
-curl -H "Authorization: Bearer $HOSPITABLE_PAT" -H "Accept: application/json" \
-  https://public.api.hospitable.com/v2/properties?per_page=10
+export HOSPITABLE_PAT="<your token>"
 ```
 
-Details: [`skills/hospitable/SKILL.md`](skills/hospitable/SKILL.md). Discovery notes: [`docs/discovery/`](docs/discovery/). Spec: [`specs/001-hospitable-core3-skills-library.md`](specs/001-hospitable-core3-skills-library.md).
+**3. Verify it works.**
 
-## Verification labels
+```bash
+curl -H "Authorization: Bearer $HOSPITABLE_PAT" -H "Accept: application/json" \
+  https://public.api.hospitable.com/v2/user
+```
 
-- **verified** = fetched live this repo's discovery phase
-- **triangulated** = confirmed via community mirrors (kacao/keithah/silkyland), needs live probe
-- **TBC** = URL from docs nav, body not fetched, so do not rely on it
+A `200` with your user object means you are in. Then ask your agent to list properties, check October availability, or show a booking. The skill holds the endpoints, filters, and gotchas.
+
+## Notes
+
+- Reads run freely. Writes (calendar updates, reservation changes, messages) require explicit approval each time.
+- This token is the maximum API access available. Anything it cannot reach requires action directly in Hospitable.
+- Skill claims marked **verified** were probed live. **TBC** means unprobed and unsafe to rely on.
