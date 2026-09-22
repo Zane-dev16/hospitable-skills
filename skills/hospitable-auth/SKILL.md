@@ -8,6 +8,8 @@ license: MIT
 
 Base: `https://public.api.hospitable.com/v2`. REST + JSON, `snake_case` on the wire.
 
+_Probe baseline: unmarked claims verified live 2026-09-22; **TBC** = unprobed._
+
 ## Auth
 
 ```bash
@@ -16,19 +18,18 @@ curl -H "Authorization: Bearer $HOSPITABLE_PAT" -H "Accept: application/json" \
   https://public.api.hospitable.com/v2/user
 ```
 
-- Hosts/dev: PAT, near-full access (verified 2026-09-22: green on user, properties, images, calendar, reservations, inquiries). Known exception: `GET reservations/{id}/enrichment` 403s `Invalid scope(s)` on a host PAT; calendar pricing/availability needs Write scope.
+- Hosts/dev: PAT — near-full access, and the ceiling: this is the maximum API access available (owner-confirmed). Stays 403: `GET reservations/{id}/enrichment` (`Invalid scope(s)`), owner accounting (plan-gated). Beyond that the user acts directly in Hospitable. Calendar pricing/availability needs Write scope.
 - Vendors: OAuth2 code flow via `auth.hospitable.com/oauth/{authorize,token}`. **TBC.**
-- Access ceiling (owner-confirmed 2026-09-22): this PAT is the maximum API access available. Anything it 403s (enrichment reads, owner accounting) or that has no API path cannot be escalated via the API — it must be done by the user directly in Hospitable.
-- Gated scopes (triangulated, likely unreachable on this plan): `calendar:write`, `listing:read` (gates `?include=listings`), `ical:write`, `financials:read`.
+- Gated scopes (triangulated, likely unreachable): `calendar:write`, `listing:read` (gates `?include=listings`), `ical:write`, `financials:read`.
 
 ## Wire
 
 - Headers: `Authorization: Bearer <token>`, `Accept: application/json`, `Content-Type: application/json` on writes.
-- Envelopes: list `{data:[], meta:{...}, links:{next}}`, single `{data:{...}}`, calendar `{data:{days:[...],listing_id,provider,start_date,end_date}}` (bare-array variant never observed 2026-09-22); images bare `{data:[...]}` with no meta. Errors `{status_code,reason_phrase,errors:{field:[msg]}}`, except 403-scope errors which omit `errors`. Unwrap all shapes.
-- Pagination: `?page=&per_page=` (default 10, max 100). Use `per_page=100` + follow `links.next`, but re-append `properties[]` (verified: `links.next` drops it → 400) and force https (`links` use http → 307). `meta.total` verified trustworthy.
-- Includes: `?include=` comma-joined; unknown values silently ignored (verified: `?include=billing` on `/v2/user` is a no-op), so stick to the allowlist. Properties: `user,listings,details,bookings,ical_imports`. Reservations: `guest,user,financials,financialsV2,listings,properties,review,smartlock_code,tasks` (verified 2026-09-22; `conversation,checkins,transactions` silently ignored on single-get).
+- Envelopes: list `{data:[], meta:{...}, links:{next}}`, single `{data:{...}}`, calendar `{data:{days:[...],listing_id,provider,start_date,end_date}}` (bare-array variant never observed); images bare `{data:[...]}`, no meta. Errors `{status_code,reason_phrase,errors:{field:[msg]}}`, except 403-scope errors which omit `errors`.
+- Pagination: `?page=&per_page=` (default 10, max 100). Use `per_page=100` + follow `links.next`, but re-append `properties[]` (`links.next` drops it → 400) and force https (`links` use http → 307). `meta.total` trustworthy.
+- Includes: `?include=` comma-joined; unknown values silently ignored (`?include=billing` on `/v2/user` is a no-op), so stick to the allowlist. Properties: `user,listings,details,bookings,ical_imports`. Reservations: `guest,user,financials,financialsV2,listings,properties,review,smartlock_code,tasks` (`conversation,checkins,transactions` silently ignored on single-get).
 - Money: minor units (cents), ISO-4217 currency.
-- Scoping is a shared rule (verified 2026-09-22): reservations, inquiries, and tasks list endpoints all 400 (`The properties field is required.`) without `properties[]`. Always scope list queries to explicit property uuids.
+- Scoping is a shared rule: reservations, inquiries, and tasks list endpoints all 400 (`The properties field is required.`) without `properties[]`. Always scope list queries to explicit property uuids.
 - Idempotency: `POST /v2/reservations` requires `Idempotency-Key: <uuid>`; use a fresh uuid per logical create.
 
 ## Limits & errors (triangulated)
