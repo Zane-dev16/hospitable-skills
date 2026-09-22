@@ -19,12 +19,7 @@ npx skills@latest add Zane-dev16/hospitable-skills
 
 ## Skills
 
-| Skill | Use when |
-| --- | --- |
-| `hospitable-auth` | Any Hospitable API call: auth, headers, pagination, envelope, rate limits |
-| `hospitable-properties` | List, get, search properties; tags; images; quotes; iCal imports |
-| `hospitable-calendar` | Read/update calendars; block/unblock ranges |
-| `hospitable-reservations` | List/get/create/update/cancel reservations; enrichment K/V |
+One skill: [`hospitable`](skills/hospitable/SKILL.md) — auth, properties, calendar, reservations. Load it for any Hospitable work.
 
 ## Auth
 
@@ -34,7 +29,7 @@ curl -H "Authorization: Bearer $HOSPITABLE_PAT" -H "Accept: application/json" \
   https://public.api.hospitable.com/v2/properties?per_page=10
 ```
 
-Details: [`skills/hospitable-auth/SKILL.md`](skills/hospitable-auth/SKILL.md). Discovery notes: [`docs/discovery/`](docs/discovery/). Spec: [`specs/001-hospitable-core3-skills-library.md`](specs/001-hospitable-core3-skills-library.md).
+Details: [`skills/hospitable/SKILL.md`](skills/hospitable/SKILL.md). Discovery notes: [`docs/discovery/`](docs/discovery/). Spec: [`specs/001-hospitable-core3-skills-library.md`](specs/001-hospitable-core3-skills-library.md).
 
 ## Verification labels
 
