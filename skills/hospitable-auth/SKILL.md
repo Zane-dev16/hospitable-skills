@@ -16,17 +16,19 @@ curl -H "Authorization: Bearer $HOSPITABLE_PAT" -H "Accept: application/json" \
   https://public.api.hospitable.com/v2/user
 ```
 
-- Hosts/dev: PAT, full access by default; calendar pricing/availability needs Write scope. **Verified 2026-09-22** (live `GET /v2/user` 200; property/calendar/reservation reads green).
+- Hosts/dev: PAT, near-full access (verified 2026-09-22: green on user, properties, images, calendar, reservations, inquiries). Known exception: `GET reservations/{id}/enrichment` 403s `Invalid scope(s)` on a host PAT; calendar pricing/availability needs Write scope.
 - Vendors: OAuth2 code flow via `auth.hospitable.com/oauth/{authorize,token}`. **TBC.**
-- Gated scopes (triangulated): `calendar:write` (request via `team-platform@hospitable.com`), `listing:read` (gates `?include=listings`), `ical:write`, `financials:read`.
+- Access ceiling (owner-confirmed 2026-09-22): this PAT is the maximum API access available. Anything it 403s (enrichment reads, owner accounting) or that has no API path cannot be escalated via the API — it must be done by the user directly in Hospitable.
+- Gated scopes (triangulated, likely unreachable on this plan): `calendar:write`, `listing:read` (gates `?include=listings`), `ical:write`, `financials:read`.
 
 ## Wire
 
 - Headers: `Authorization: Bearer <token>`, `Accept: application/json`, `Content-Type: application/json` on writes.
-- Envelopes: list `{data:[], meta:{...}, links:{next}}`, single `{data:{...}}`, calendar `{data:{days:[...]}}` or `{data:[...]}`; unwrap both.
-- Pagination: `?page=&per_page=` (default 10, max 100). Use `per_page=100` + follow `links.next`.
-- Includes: `?include=` comma-joined; unknown values silently ignored, so stick to the allowlist. Properties: `user,listings,details,bookings,ical_imports`. Reservations: `guest,user,financials,financialsV2,listings,properties,review,smartlock_code,tasks,conversation,checkins,transactions`.
+- Envelopes: list `{data:[], meta:{...}, links:{next}}`, single `{data:{...}}`, calendar `{data:{days:[...],listing_id,provider,start_date,end_date}}` (bare-array variant never observed 2026-09-22); images bare `{data:[...]}` with no meta. Errors `{status_code,reason_phrase,errors:{field:[msg]}}`, except 403-scope errors which omit `errors`. Unwrap all shapes.
+- Pagination: `?page=&per_page=` (default 10, max 100). Use `per_page=100` + follow `links.next`, but re-append `properties[]` (verified: `links.next` drops it → 400) and force https (`links` use http → 307). `meta.total` verified trustworthy.
+- Includes: `?include=` comma-joined; unknown values silently ignored (verified: `?include=billing` on `/v2/user` is a no-op), so stick to the allowlist. Properties: `user,listings,details,bookings,ical_imports`. Reservations: `guest,user,financials,financialsV2,listings,properties,review,smartlock_code,tasks` (verified 2026-09-22; `conversation,checkins,transactions` silently ignored on single-get).
 - Money: minor units (cents), ISO-4217 currency.
+- Scoping is a shared rule (verified 2026-09-22): reservations, inquiries, and tasks list endpoints all 400 (`The properties field is required.`) without `properties[]`. Always scope list queries to explicit property uuids.
 - Idempotency: `POST /v2/reservations` requires `Idempotency-Key: <uuid>`; use a fresh uuid per logical create.
 
 ## Limits & errors (triangulated)
