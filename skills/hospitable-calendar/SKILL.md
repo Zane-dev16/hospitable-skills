@@ -14,15 +14,15 @@ Needs `skills/hospitable-auth/SKILL.md` for base, headers, envelopes.
 BASE=https://public.api.hospitable.com/v2
 H='Authorization: Bearer '"$HOSPITABLE_PAT"
 
-# Read: start_date + end_date required
+# Read verified 2026-09-22: start_date + end_date required; returns {data:{listing_id,provider,start_date,end_date,days:[{date,day,min_stay,note,closed_for_checkin/closed_for_checkout,status:{reason,source,source_type,available},price:{amount,currency,formatted}}]}}; money in minor units
 curl -H "$H" "$BASE/properties/{uuid}/calendar?start_date=2026-10-01&end_date=2026-10-31"
 
-# Update: additive, max 60 dates per call, max ~1095d out, async-apply (poll GET after)
+# Update (TBC — no write probe run): additive, max 60 dates per call, max ~1095d out, async-apply (poll GET after)
 curl -X PUT -H "$H" -H 'Content-Type: application/json' \
   -d '{"days":[{"date":"2026-10-05","available":false}]}' \
   "$BASE/properties/{uuid}/calendar"
 
-# Range conveniences (triangulated)
+# Range conveniences (TBC — unprobed, no writes run)
 curl -X POST -H "$H" -H 'Content-Type: application/json' -d '{"start_date":"2026-10-05","end_date":"2026-10-08"}' "$BASE/properties/{uuid}/calendar/block"
 curl -X POST -H "$H" -H 'Content-Type: application/json' -d '{"start_date":"2026-10-05","end_date":"2026-10-08"}' "$BASE/properties/{uuid}/calendar/unblock"
 ```

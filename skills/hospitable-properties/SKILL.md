@@ -10,19 +10,18 @@ Needs `skills/hospitable-auth/SKILL.md` for base, headers, pagination, envelopes
 
 Glossary: **Property** = Hospitable-side unit (`uuid`). **Listing** = channel-side copy (read-only in v1, via `?include=listings` or `GET /v2/listings`).
 
-## Endpoints (triangulated unless noted)
+## Endpoints (verified 2026-09-22 unless noted)
 
 ```bash
 BASE=https://public.api.hospitable.com/v2
 H='Authorization: Bearer '"$HOSPITABLE_PAT"
 
 curl -H "$H" "$BASE/properties?per_page=100"            # list (auto-paginate links.next)
-curl -H "$H" "$BASE/properties/{uuid}"                 # get one
-curl -H "$H" "$BASE/properties/search?check_in=2026-10-01&check_out=2026-10-05"  # availability+pricing (<=90d window, <=3y out; surfaces notAvailableReason)
-curl -H "$H" "$BASE/properties/{uuid}/images"          # ordered images: short-lived S3 URLs, never cache
-curl -H "$H" "$BASE/properties/{uuid}/tags"            # list org tags
-curl -X POST -H "$H" -H 'Content-Type: application/json' -d '{"tags":["cabin"]}' "$BASE/properties/{uuid}/tags"  # add 1-10 per call
-curl -X POST -H "$H" -H 'Content-Type: application/json' -d '{...}' "$BASE/properties/{uuid}/quote"  # Direct-gated quote
+curl -H "$H" "$BASE/properties/{uuid}"                 # get one (verified)
+curl -H "$H" "$BASE/properties/search?start_date=2026-10-01&end_date=2026-10-05&adults=2"  # verified; requires start_date+end_date+adults; returns {data:[{property,pricing,availability,distance_in_km}]}
+curl -H "$H" "$BASE/properties/{uuid}/images"          # verified: ordered [{url,thumbnail_url,caption,order,last_updated_at}], short-lived S3 URLs, never cache
+curl -X POST -H "$H" -H 'Content-Type: application/json' -d '{"tags":["cabin"]}' "$BASE/properties/{uuid}/tags"  # add 1-10 per call (TBC: GET unsupported — live probe 405, POST-only)
+curl -X POST -H "$H" -H 'Content-Type: application/json' -d '{...}' "$BASE/properties/{uuid}/quote"  # Direct-gated quote (TBC, unprobed)
 ```
 
 iCal (needs `ical:write`; redact `url` in logs):

@@ -16,7 +16,7 @@ curl -H "Authorization: Bearer $HOSPITABLE_PAT" -H "Accept: application/json" \
   https://public.api.hospitable.com/v2/user
 ```
 
-- Hosts/dev: PAT, full access by default; calendar pricing/availability needs Write scope. **Verified.**
+- Hosts/dev: PAT, full access by default; calendar pricing/availability needs Write scope. **Verified 2026-09-22** (live `GET /v2/user` 200; property/calendar/reservation reads green).
 - Vendors: OAuth2 code flow via `auth.hospitable.com/oauth/{authorize,token}`. **TBC.**
 - Gated scopes (triangulated): `calendar:write` (request via `team-platform@hospitable.com`), `listing:read` (gates `?include=listings`), `ical:write`, `financials:read`.
 
