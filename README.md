@@ -4,20 +4,29 @@ One agent skill for the Hospitable Public API v2: properties, calendar, reservat
 
 ## Setup
 
-**1. Install the skill.**
+**1. Install the skill — pick a mode (default: full).**
 
-Claude Code:
+Claude Code (`hospitable-skills` = full access, `hospitable-skills-readonly` = reads only):
 
 ```bash
 /plugin marketplace add Zane-dev16/hospitable-skills
 /plugin install hospitable-skills@zane-dev16
 ```
 
-Codex / other agents:
+Read-only instead:
+
+```bash
+/plugin install hospitable-skills-readonly@zane-dev16
+```
+
+Codex / other agents (editable files, `--mode full|readonly`, default `full`):
 
 ```bash
 npx skills@latest add Zane-dev16/hospitable-skills
+./scripts/install.sh --mode readonly
 ```
+
+Both modes build from the same source (`skills/hospitable/SKILL.md`); the read-only build physically contains no write examples. Pair it with a least-privilege PAT — the token is the real gate, the skill mode is the guardrail.
 
 **2. Add your token.**
 

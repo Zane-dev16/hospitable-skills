@@ -3,6 +3,7 @@ name: hospitable
 description: "Work with the Hospitable Public API v2. Use for any Hospitable call: auth headers, properties, search, images, calendar reads and updates, reservations, enrichment, or messaging."
 license: MIT
 ---
+> Full-access build: reads run freely; writes (calendar updates, reservation changes, messages) require explicit approval each time.
 
 # Hospitable (Public API v2)
 

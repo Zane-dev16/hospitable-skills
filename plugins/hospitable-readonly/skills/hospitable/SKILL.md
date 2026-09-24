@@ -1,14 +1,15 @@
 ---
 name: hospitable
-description: "Work with the Hospitable Public API v2. Use for any Hospitable call: auth headers, properties, search, images, calendar reads and updates, reservations, enrichment, or messaging."
+description: "Work with the Hospitable Public API v2 (read-only). Use for Hospitable reads: auth headers, properties, search, images, calendar reads, reservations, or message history."
 license: MIT
 ---
+> Read-only build: GET requests only. Refuse calendar updates, reservation changes, enrichment writes, and message sends; tell the user which access the task needs.
 
 # Hospitable (Public API v2)
 
 Base: `https://public.api.hospitable.com/v2`. REST + JSON, `snake_case` on the wire.
 
-_Probe baseline: unmarked claims verified live 2026-09-22; **TBC** = unprobed. Reads verified; every write below is TBC — no write probe has ever run on this account._
+_Probe baseline: unmarked claims verified live 2026-09-22; **TBC** = unprobed. Reads verified. This build contains no write examples — see the full-access build for those (all TBC)._
 
 ```bash
 export HOSPITABLE_PAT="<my.hospitable.com → Apps → API access → + Add new>"
@@ -48,20 +49,8 @@ curl -H "$H" "$BASE/properties?per_page=100"            # list (auto-paginate li
 curl -H "$H" "$BASE/properties/{uuid}"                 # get one
 curl -H "$H" "$BASE/properties/search?start_date=2026-10-01&end_date=2026-10-05&adults=2"  # requires start_date+end_date+adults; returns {data:[{property,pricing,availability,distance_in_km}]}
 curl -H "$H" "$BASE/properties/{uuid}/images"          # ordered [{url,thumbnail_url,caption,order,last_updated_at}] — fetch fresh every run, never cache (observed stable asset URLs, not expiring S3 links)
-<!-- WRITE-BEGIN -->
-curl -X POST -H "$H" -H 'Content-Type: application/json' -d '{"tags":["cabin"]}' "$BASE/properties/{uuid}/tags"  # add 1-10 per call (POST-only — GET 405s)
-curl -X POST -H "$H" -H 'Content-Type: application/json' -d '{...}' "$BASE/properties/{uuid}/quote"  # Direct-only (TBC, unprobed)
-<!-- WRITE-END -->
 ```
 
-<!-- WRITE-BEGIN -->
-iCal (needs `ical:write`; redact `url` in logs) — TBC, unprobed:
-
-```bash
-curl -X POST -H "$H" -H 'Content-Type: application/json' -d '{"url":"...","name":"..."}' "$BASE/properties/{uuid}/ical-imports"
-curl -X PUT -H "$H" -H 'Content-Type: application/json' -d '{"name":"..."}' "$BASE/properties/{uuid}/ical-imports/{icalId}"
-```
-<!-- WRITE-END -->
 
 `GET /v2/channels` 200 `[{user_id,name,login,platform,picture}]` (platforms: homeaway,booking,airbnb,manual,direct; redact `login` email); `GET /v2/listings` 404s — use `?include=listings` instead.
 
@@ -73,16 +62,6 @@ Search rules: unavailable results carry `pricing.daily[]` with `pricing.total=nu
 # Read: dates OPTIONAL (missing end → start+14d; no params → today+14d, 200). Day: {date,day,min_stay,note,closed_for_checkin/closed_for_checkout,status:{reason,source,source_type,available},price:{amount,currency,formatted}}
 curl -H "$H" "$BASE/properties/{uuid}/calendar?start_date=2026-10-01&end_date=2026-10-31"
 
-<!-- WRITE-BEGIN -->
-# Update (TBC): additive, max 60 dates per call, max ~1095d out, async-apply (poll GET after)
-curl -X PUT -H "$H" -H 'Content-Type: application/json' \
-  -d '{"days":[{"date":"2026-10-05","available":false}]}' \
-  "$BASE/properties/{uuid}/calendar"
-
-# Range conveniences (TBC, unprobed)
-curl -X POST -H "$H" -H 'Content-Type: application/json' -d '{"start_date":"2026-10-05","end_date":"2026-10-08"}' "$BASE/properties/{uuid}/calendar/block"
-curl -X POST -H "$H" -H 'Content-Type: application/json' -d '{"start_date":"2026-10-05","end_date":"2026-10-08"}' "$BASE/properties/{uuid}/calendar/unblock"
-<!-- WRITE-END -->
 ```
 
 Status `reason` observed: only `AVAILABLE`/`RESERVED` (`BLOCKED` never seen); `note`/`closed_*` fields live but all null/false here. Reversed range → 400; >3y out → 400; single-day range → 200 with 1 day.
@@ -94,18 +73,9 @@ curl -H "$H" "$BASE/reservations?properties[]={uuid}&per_page=100"  # list; REQU
 # Window every list: dateless = check-ins next 2 weeks ONLY — past/in-house stays vanish. Always pass start_date/end_date/date_query:
 curl -H "$H" "$BASE/reservations?properties[]={uuid}&start_date=2026-09-01&end_date=2026-09-30&date_query=checkin&status[]=accepted&include=guest&per_page=100"
 curl -H "$H" "$BASE/reservations/{uuid}"                           # get one
-<!-- WRITE-BEGIN -->
-curl -X POST -H "$H" -H 'Content-Type: application/json' -H "Idempotency-Key: $(uuidgen)" \
-  -d '{...}' "$BASE/reservations"                                  # create manual/direct (TBC)
-curl -X PUT -H "$H" -H 'Content-Type: application/json' -d '{...}' "$BASE/reservations/{uuid}"  # update (PUT first; PATCH fallback TBC)
-curl -X POST -H "$H" -H 'Content-Type: application/json' -d '{"initiatedBy":"host"}' "$BASE/reservations/{uuid}/cancel"  # manual/Direct-only (TBC)
-<!-- WRITE-END -->
 
 # Enrichment K/V: correct path is /enrichment (not /enrichment-data); value:null clears (GET 403s `Invalid scope(s)` on max-access PAT — ceiling applies)
 curl -H "$H" "$BASE/reservations/{uuid}/enrichment"
-<!-- WRITE-BEGIN -->
-curl -X PUT -H "$H" -H 'Content-Type: application/json' -d '{"smartlock_code":"1234"}' "$BASE/reservations/{uuid}/enrichment"
-<!-- WRITE-END -->
 ```
 
 List filters: `date_query` = `checkin|checkout|booked_at` alongside `start_date/end_date YYYY-MM-DD` (checkin filters arrival, checkout filters departure, booked_at filters booking date); response datetimes are all ISO-8601 with TZ. `status[]`: observed `accepted,cancelled,denied`; `reservation_status.current.category` uses `not accepted` with a space; `request/checkpoint` unverified. Also: `platform_id`, `conversation_id`.
@@ -113,6 +83,3 @@ List filters: `date_query` = `checkin|checkout|booked_at` alongside `start_date/
 Rules: fresh `Idempotency-Key` per logical create, same key on retry. Update is full for manual, partial (notes, checkin/out time) for OTA. Cancel is manual/Direct-only — guard before calling. Calendar RESERVED nights with no listed row → re-query with an explicit window before assuming a sync gap. Never message a stay you cannot resolve to a listed reservation id. `?include=financialsV2` is an alias returning the same `financials` shape; `smartlock_code` present-but-null is ambiguous (unset vs scope-gated).
 
 Messaging reads (`GET /v2/reservations/{id}/messages`) list thread content.
-<!-- WRITE-BEGIN -->
-Messaging writes are verified: `POST {body}` (no senderId) → `202 {data:{sent_reference_id}}`; confirm delivery by polling GET and matching `sent_reference_id`.
-<!-- WRITE-END -->
