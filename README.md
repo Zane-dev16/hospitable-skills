@@ -1,52 +1,46 @@
 # Hospitable skill
 
-One agent skill for the Hospitable Public API v2: properties, calendar, reservations.
+One agent skill for the Hospitable Public API v2: properties, search, images, calendar, reservations, enrichment, and messaging. The source is `skills/hospitable/SKILL.md`, and the build produces full and read-only installs with the write examples stripped from the read-only copy.
+
+Details that are not setup live in [docs/notes.md](docs/notes.md).
 
 ## Setup
 
-**1. Install the skill — pick a mode (default: full).**
+Pick full or read-only, then add the token and check the connection.
 
-Claude Code (`hospitable-skills` = full access, `hospitable-skills-readonly` = reads only):
+Claude Code (full):
 
 ```bash
 /plugin marketplace add Zane-dev16/hospitable-skills
 /plugin install hospitable-skills@zane-dev16
 ```
 
-Read-only instead:
+Claude Code (read-only):
 
 ```bash
 /plugin install hospitable-skills-readonly@zane-dev16
 ```
 
-Codex / other agents (editable files, `--mode full|readonly`, default `full`):
+Codex and other agents (default mode is full):
 
 ```bash
 npx skills@latest add Zane-dev16/hospitable-skills
 ./scripts/install.sh --mode readonly
 ```
 
-Both modes build from the same source (`skills/hospitable/SKILL.md`); the read-only build physically contains no write examples. Pair it with a least-privilege PAT — the token is the real gate, the skill mode is the guardrail.
-
-**2. Add your token.**
-
-Mint it in Hospitable: Apps → API access → new personal access token. Export it; never commit it:
+Add the token (create it in Hospitable under Apps → API access):
 
 ```bash
 export HOSPITABLE_PAT="<your token>"
 ```
 
-**3. Verify it works.**
+Verify:
 
 ```bash
 curl -H "Authorization: Bearer $HOSPITABLE_PAT" -H "Accept: application/json" \
   https://public.api.hospitable.com/v2/user
 ```
 
-A `200` with your user object means you are in. Then ask your agent to list properties, check October availability, or show a booking. The skill holds the endpoints, filters, and gotchas.
+A 200 with your user object means the token works.
 
-## Notes
-
-- Reads run freely. Writes (calendar updates, reservation changes, messages) require explicit approval each time.
-- This token is the maximum API access available. Anything it cannot reach requires action directly in Hospitable.
-- Skill claims marked **verified** were probed live. **TBC** means unprobed and unsafe to rely on.
+License: MIT (see LICENSE).
